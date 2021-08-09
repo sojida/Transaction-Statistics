@@ -80,11 +80,6 @@ Environment Variables
 cp example.env .env
 ```
 
-### Tests
-```bash
-npm test
-```
-
 ### Run Development Server
 ```bash
 npm run start:dev

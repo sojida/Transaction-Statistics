@@ -17,7 +17,7 @@ Transactions.checkTransactionSixtySecondsLess();
 
 app.post('/transaction', (req, res) => {
     const schema = Joi.object({
-        amount: Joi.number().required(),
+        amount: Joi.number().positive().required(),
         timestamp: Joi.string().isoDate().required()
     })
 
