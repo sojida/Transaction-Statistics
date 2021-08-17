@@ -5,14 +5,6 @@ const Transaction = require('./Transaction');
 const Transactions = require('./Transactions')
 const Statistics = require('./Statistics');
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
-});
-
-//  apply to all requests
-app.use(limiter);
-
 require('dotenv').config();
 
 const PORT = process.env.PORT || 4000;
@@ -30,6 +22,14 @@ process.on('uncaughtException', (err) => {
 })
 
 Transactions.checkTransactionSixtySecondsLess();
+
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100 // limit each IP to 100 requests per windowMs
+  });
+  
+  //  apply to all requests
+  app.use(limiter);
 
 
 app.post('/transaction', (req, res) => {
