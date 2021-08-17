@@ -1,8 +1,17 @@
 const express = require('express');
 const Joi = require('joi');
+const rateLimit = require("express-rate-limit");
 const Transaction = require('./Transaction');
 const Transactions = require('./Transactions')
 const Statistics = require('./Statistics');
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
+
+//  apply to all requests
+app.use(limiter);
 
 require('dotenv').config();
 
@@ -11,6 +20,14 @@ const PORT = process.env.PORT || 4000;
 
 const app = express();
 app.use(express.json())
+
+process.on('uncaughtException', (err) => {
+    app.use((req, res, next) => {
+
+        res.status(500).json({status: false, message: 'Server Error'})
+        next()
+    })
+})
 
 Transactions.checkTransactionSixtySecondsLess();
 
@@ -21,7 +38,7 @@ app.post('/transaction', (req, res) => {
         timestamp: Joi.string().isoDate().required()
     })
 
-    const validationErr = schema.validate(req.body)
+    const validationErr = schem.validate(req.body)
 
     if (validationErr.error) {
         return res.status(422).json({
@@ -77,6 +94,13 @@ app.delete('/transactions', (req, res) => {
         message: 'Transactions deleted'
     });
 })
+
+// handle errors
+app.use('*', (req, res) => {
+    res.status(404).json({ status: false, message: 'Route not found' });
+});
+
+
 
 
 app.listen(PORT, () => console.log(`App listening on ${PORT}`))
